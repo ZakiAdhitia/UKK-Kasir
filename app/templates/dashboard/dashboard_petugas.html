@@ -5,12 +5,27 @@
     <h2 class="mb-4 fw-bold">Dashboard</h2>
     <div class="card shadow">
         <div class="card-body text-center">
-            <h5 class="fw-bold">Selamat Datang, Petugas!</h5>
+            <h5 class="fw-bold">Selamat Datang!</h5>
             <hr>
             <h6 class="mb-2 text-muted">Total Penjualan Hari Ini</h6>
             <h1 class="display-4">{{ total_penjualan }}</h1>
             <p class="text-muted">Jumlah total penjualan yang terjadi hari ini.</p>
             <small class="text-secondary">Terakhir diperbarui: {{ today.strftime('%d %b %Y') }}</small>
+        </div>
+    </div>
+    <div class="card mt-4 shadow">
+        <div class="card-body text-center">
+            <h6 class="mb-2 text-muted">Jumlah Transaksi</h6>
+            <div class="row">
+                <div class="col-6">
+                    <h4>Member</h4>
+                    <p>{{ member_count }} transaksi</p>
+                </div>
+                <div class="col-6">
+                    <h4>Non-Member</h4>
+                    <p>{{ non_member_count }} transaksi</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

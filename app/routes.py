@@ -48,12 +48,27 @@ def login():
 
 def hitung_total_penjualan_hari_ini():
     today = date.today()
+
     total = (
         Sale.query
         .filter(Sale.created_at == today)
         .count()
     )
-    return total
+
+    total_member = (
+        Sale.query
+        .filter(Sale.created_at == today, Sale.member_id.isnot(None))
+        .count()
+    )
+
+    total_non_member = (
+        Sale.query
+        .filter(Sale.created_at == today, Sale.member_id.is_(None))
+        .count()
+    )
+
+    return total, total_member, total_non_member
+
 
 def get_data_dashboard_admin():
     today = date.today()
@@ -104,12 +119,14 @@ def dashboard():
         )
     
     elif current_user.role == 'petugas':
-        total_penjualan = hitung_total_penjualan_hari_ini()
+        total_penjualan, member_count, non_member_count = hitung_total_penjualan_hari_ini()
         today = date.today()
         return render_template(
             'dashboard/dashboard_petugas.html',
             total_penjualan=total_penjualan,
-            today=today
+            today=today,
+            non_member_count=non_member_count,
+            member_count=member_count,
         )
     
     else:
@@ -588,6 +605,8 @@ def generate_struk_pdf(sale_id):
     y -= 20
 
     p.setFont("Helvetica", 11)
+    total_refund = 0
+    total_used_point = 0
     for item in sale_detail_items:
         if y < 100:
             p.showPage()
@@ -596,9 +615,17 @@ def generate_struk_pdf(sale_id):
         p.drawString(9 * cm, y, str(item.quantity))
         p.drawString(11 * cm, y, f"Rp {item.product_price:,.0f}")
         p.drawString(14 * cm, y, f"Rp {item.total_price:,.0f}")
+        total_refund += item.refund or 0
+        total_used_point += item.used_point or 0
         y -= 20
 
-    y -= 30
+    # Tambahkan informasi point dan kembalian di bawah
+    y -= 20
+    p.setFont("Helvetica-Bold", 12)
+    draw_text("Total Point yang Digunakan", f"Rp {total_used_point:,.0f}")
+    draw_text("Total Kembalian", f"Rp {total_refund:,.0f}")
+
+    y -= 20
     p.setFont("Helvetica-Oblique", 10)
     p.drawString(3 * cm, y, "Terima kasih telah berbelanja!")
 
