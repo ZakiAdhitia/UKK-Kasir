@@ -1,0 +1,7 @@
+<!-- <h5 class="text-white text-center">Kasir App</h5> -->
+<a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+<a href="{{ url_for('main.read_all_produk') }}">Produk</a>
+<a href="{{ url_for('main.get_all_sale') }}">Pembelian</a>
+{% if current_user.role == 'admin' %}
+<a href="{{ url_for('main.get_all_user') }}">User</a>
+{% endif %}

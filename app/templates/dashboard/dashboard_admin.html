@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+
+
+{% block content %}
+<h2 class="mb-4 fw-bold">Dashboard</h2>
+<div class="card shadow-sm p-4 rounded-4">
+    <div class="row align-items-center">
+        <!-- Bar Chart -->
+        <div class="col-lg-8 mb-4 mb-lg-0">
+            <div style="position: relative; height: 300px;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-lg-4 text-center">
+            <h6 class="fw-semibold mb-3">Persentase Penjualan Produk</h6>
+            <div style="position: relative; height: 250px;">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const labels = {{ penjualan_harian | map(attribute=0) | list | tojson }};
+    const dataPenjualan = {{ penjualan_harian | map(attribute=1) | list | tojson }};
+
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Penjualan',
+                data: dataPenjualan,
+                backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                borderColor: 'rgba(54, 162, 235, 0.8)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            aspectRatio: 2,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: {{ product_labels | tojson }},
+            datasets: [{
+                data: {{ product_values | tojson }},
+                backgroundColor: [
+                    '#FFB6C1', '#ADD8E6', '#FFFFE0', '#D8BFD8', '#FFDAB9',
+                    '#90EE90', '#F08080', '#E6E6FA', '#FFE4E1', '#AFEEEE'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pilih Produk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .product-card {
+            height: 100%;
+        }
+        .product-image {
+            height: 150px;
+            object-fit: cover;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .quantity-control input {
+            width: 60px;
+            text-align: center;
+        }
+        .subtotal {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .total-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="mb-4 text-center">Pilih Produk untuk Penjualan</h2>
+
+        <form method="POST" novalidate>
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card product-card shadow-sm">
+                        <img src="{{ url_for('static', filename='product/' ~ product.image) }}" class="card-img-top product-image" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text mb-1"><strong>Stok:</strong> {{ product.stock }}</p>
+                            <p class="card-text mb-2">
+                                <strong>Harga:</strong> Rp 
+                                <span id="price{{ product.id }}" data-price="{{ product.price }}">{{ "{:,.0f}".format(product.price) }}</span>
+                            </p>
+
+                            <div class="quantity-control mb-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="changeQuantity('{{ product.id }}', -1)" title="Kurangi jumlah">-</button>
+                                <input type="number" class="form-control" name="quantities[{{ product.id }}]" id="quantity{{ product.id }}" value="0" min="0" max="{{ product.stock }}" onchange="updateSubtotal('{{ product.id }}')">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="changeQuantity('{{ product.id }}', +1)" title="Tambah jumlah">+</button>
+                            </div>
+
+                            <div class="card-text subtotal mb-2">
+                                Subtotal: Rp <span id="subtotal{{ product.id }}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+
+            <div class="text-end mt-4">
+                <h4 class="total-price">Total Keseluruhan: Rp <span id="total-price">0</span></h4>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Lanjut ke Pembayaran</button>
+            </div>
+        </form>
+    </div>
+
+    <script defer>
+        function changeQuantity(productId, change) {
+            const input = document.getElementById('quantity' + productId);
+            const max = parseInt(input.max);
+            let val = parseInt(input.value || 0) + change;
+            if (val < 0) val = 0;
+            if (val > max) val = max;
+            input.value = val;
+            updateSubtotal(productId);
+        }
+
+        function updateSubtotal(productId) {
+            const input = document.getElementById('quantity' + productId);
+            const price = parseInt(document.getElementById('price' + productId).dataset.price);
+            const subtotal = price * parseInt(input.value || 0);
+            document.getElementById('subtotal' + productId).innerText = subtotal.toLocaleString();
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            {% for product in products %}
+                total += parseInt(document.getElementById('quantity{{ product.id }}').value || 0) *
+                        parseInt(document.getElementById('price{{ product.id }}').dataset.price);
+            {% endfor %}
+            document.getElementById('total-price').innerText = total.toLocaleString();
+        }
+
+
+        // Inisialisasi saat halaman dimuat
+        window.onload = function () {
+            {% for product in products %}
+                updateSubtotal('{{ product.id }}');
+            {% endfor %}
+        }
+    </script>
+</body>
+</html>

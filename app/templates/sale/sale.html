@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}Transaksi{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Daftar Transaksi</h2>
+
+{% if current_user.role == 'petugas' %}
+<a href="{{ url_for('main.create_sale') }}" class="btn btn-success mb-3">+ Tambah Penjualan</a>
+{% endif %}
+<a href="{{ url_for('main.export_sales_excel') }}" class="btn btn-primary mb-3">📤 Export Excel</a>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-primary">
+        <tr>
+            <th>No</th>
+            <th>Nama Pembeli</th>
+            <th>Tanggal Penjualan</th>
+            <th>Total Harga</th>
+            <th>Dibuat Oleh</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ sale.member.name if sale.member else 'NON-MEMBER' }}</td>
+            <td>{{ sale.created_at }}</td>
+            <td>
+                {% if sale.total_price %}
+                    Rp {{ "{:,.0f}".format(sale.total_price) }}
+                {% else %}
+                    Rp 0
+                {% endif %}
+            </td>
+            <td>{{ sale.created_by }}</td>
+            <td>
+                <a href="#" onclick="showSaleDetail({{ sale.id }})" class="btn btn-info btn-sm">Lihat</a>
+                <a href="{{ url_for('main.generate_struk_pdf', sale_id=sale.id) }}" class="btn btn-danger btn-sm">Unduh</a>
+            </td>
+        </tr>
+        {% endfor %}
+        <!-- {% if transactions|length == 0 %}
+        <tr>
+            <td colspan="6" class="text-center">Belum ada Penjualan</td>
+        </tr>
+        {% endif %} -->
+    </tbody>
+</table>
+<div class="modal fade" id="saleDetailModal" tabindex="-1" aria-labelledby="saleDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" id="modalContent">
+          <!-- Modal content will be loaded here -->
+      </div>
+    </div>
+  </div>
+  
+  <script>
+      function showSaleDetail(saleId) {
+          fetch(`/sales/${saleId}/detail`)
+              .then(response => response.text())
+              .then(html => {
+                  document.getElementById('modalContent').innerHTML = html;
+                  new bootstrap.Modal(document.getElementById('saleDetailModal')).show();
+              });
+      }
+  </script>
+{% endblock %}

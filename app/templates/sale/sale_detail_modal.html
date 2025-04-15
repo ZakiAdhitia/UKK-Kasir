@@ -1,0 +1,44 @@
+<div class="modal-header">
+    <h5 class="modal-title">Detail Penjualan - Invoice #{{ sale_detail_items[0].invoice }}</h5>
+    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <p>Member Status: {{ sale.member_status or '-' }}</p>
+    <p>No. HP: {{ sale.member.phone_number if sale.member else '-' }}</p>
+    <p>Poin Member: {{ sale.member.points if sale.member else '-' }}</p>
+    <p>Bergabung Sejak: {{ sale_detail_items[0].member_since if sale_detail_items[0].member_since else '-' }}</p>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nama Produk</th>
+                <th>Qty</th>
+                <th>Harga</th>
+                <th>Sub Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale_detail_items %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>Rp {{ "{:,.0f}".format(item.product_price or 0) }}</td>
+                <td>Rp {{ "{:,.0f}".format(item.total_price or 0) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Total Bayar:</strong> Rp {{ "{:,.0f}".format(sale_detail_items[0].total_pay or 0) }}</p>
+    <p><strong>Gunakan Poin:</strong> Rp {{ "{:,.0f}".format(sale_detail_items[0].used_point or 0.0) }}</p>
+    <p><strong>Refund:</strong> Rp {{ "{:,.0f}".format(sale_detail_items[0].refund or 0.0) }}</p>
+    <p><strong>Dibuat oleh:</strong> {{ sale.created_by }}</p>
+    <p><strong>Dibuat pada:</strong> {{ sale.created_at.strftime('%d-%m-%Y') }}</p>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+</div>

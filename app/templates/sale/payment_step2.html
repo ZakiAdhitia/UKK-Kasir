@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pembayaran - Langkah 2</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 30px;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 6px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+        }
+
+        .total {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .note {
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pembayaran (Langkah 2)</h1>
+
+    <div class="section">
+        <h3>Detail Produk</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Produk</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in session['pending_sale']['items'] %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>Rp {{ "{:,.0f}".format(item.price) }}</td>
+                    <td>Rp {{ "{:,.0f}".format(item.subtotal) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p class="total">Total Harga: Rp {{ "{:,.0f}".format(session['pending_sale']['total_price']) }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Informasi Member</h3>
+        {% if member %}
+            <p><strong>Nomor Telepon:</strong> {{ member.phone_number }}</p>
+            <p><strong>Poin Tersedia:</strong> {{ member.points }}</p>
+    
+            <form method="POST">
+                <label>Nama Member (Identitas)</label>
+                <input type="text" name="member_name" value="{{ member.name or '' }}" required>
+    
+                {% if is_first_transaction %}
+                    <p class="text-warning"><strong>Ini adalah transaksi pertama. Poin tidak dapat digunakan.</strong></p>
+                {% endif %}
+
+                {% if member.points > 0 and not is_first_transaction %}
+                    <label><input type="checkbox" name="use_point" value="yes"> Gunakan Poin</label><br><br>
+                {% endif %}
+
+    
+                <button type="submit">Selesaikan Transaksi</button>
+            </form>
+        {% else %}
+            <p>Transaksi dilakukan sebagai <strong>Non-Member</strong>.</p>
+            <form method="POST">
+                <button type="submit">Lanjutkan dan Selesaikan Transaksi</button>
+            </form>
+        {% endif %}
+    </div>    
+</body>
+</html>

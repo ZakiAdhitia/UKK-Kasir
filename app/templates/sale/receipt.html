@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Struk Transaksi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px auto;
+            max-width: 700px;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .footer-info {
+            margin-top: 30px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #45a049;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Struk Transaksi</h1>
+
+    <p><strong>Invoice - </strong> {{ invoice }}</p>
+    <p><strong>Member Sejak:</strong> {{ member.created_at.strftime('%d-%m-%Y') if member.created_at else '-' }}</p>
+    <p><strong>Poin Tersisa:</strong> {{ member.points }}</p>
+    <p><strong>Tanggal:</strong> {{ sale.created_at.strftime('%d-%m-%Y') }}</p>
+    <p><strong>Nama Kasir:</strong> {{ cashier }}</p>
+
+    <hr>
+
+    <h2>Daftar Produk</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Produk</th>
+                <th>Qty</th>
+                <th>Harga</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale_details %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>Rp {{ item.product_price }}</td>
+                <td>Rp {{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <div class="footer-info">
+        <p><strong>Poin yang Digunakan:</strong> {{ used_point }}</p>
+        <p><strong>Kembalian:</strong> Rp {{ change }}</p>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="{{ url_for('main.create_sale') }}">Buat Penjualan Baru</a>
+        <a href="{{ url_for('main.get_all_sale') }}">Kembali</a>
+        <a href="{{ url_for('main.generate_struk_pdf', sale_id=sale.id) }}" target="_blank" download>Unduh PDF</a>
+    </div>
+
+</body>
+</html>

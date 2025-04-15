@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Daftar Member</h2>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Nama Member</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Nama lengkap" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">No Telepon</label>
+            <input type="text" class="form-control" id="phone" name="phone" placeholder="Contoh: 08123456789" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Selanjutnya</button>
+    </form>
+
+    {% if session['pending_sale'] %}
+    <hr>
+    <h4>Ringkasan Pembelian</h4>
+    <ul class="list-group mb-3">
+        {% for item in session['pending_sale']['items'] %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item['product_name'] }} (x{{ item['quantity'] }})
+                <span>Rp {{ "{:,.0f}".format(item['subtotal']) }}</span>
+            </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
+            Total
+            <span>Rp {{ "{:,.0f}".format(session['pending_sale']['total_price']) }}</span>
+        </li>
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Daftar Products</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-primary">
+        <tr>
+            <th>No</th>
+            <th>Nama Products</th>
+            <th>Harga</th>
+            <th>Stok</th>
+            <th>Image</th>
+            {% if current_user.role == 'admin'  %}
+            <th>Aksi</th>
+            {% endif %}
+        </tr>
+    </thead>
+    {% if current_user.role == 'admin'  %}
+    <a href="{{ url_for('main.tambah_produk') }}" class="btn btn-success mb-3">+ Tambah Products</a>
+    {% endif %}
+
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ product.name }}</td>
+            <td>Rp {{ "{:,.0f}".format(product.price) }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+                {% if product.image %}
+                    <img src="{{ url_for('static', filename='product/' ~ product.image) }}" width="100">
+                {% else %}
+                    <span class="text-muted">Tidak ada gambar</span>
+                {% endif %}
+            </td>
+            {% if current_user.role == 'admin'  %}
+            <td>
+                <a href="{{ url_for('main.edit_product', product_id=product.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{{url_for('main.delete_product', product_id=product.id)}}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        {% if products|length == 0 %}
+        <tr>
+            <td colspan="4" class="text-center">Tidak ada products tersedia</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

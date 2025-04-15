@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pembayaran - Langkah 1</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Pembayaran - Langkah 1</h3>
+    
+                <form method="POST">
+                    <div class="row">
+                        <!-- Form di kiri -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status Pelanggan</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="is_member" id="memberYes" value="member" required>
+                                    <label class="form-check-label" for="memberYes">Member</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="is_member" id="memberNo" value="non_member">
+                                    <label class="form-check-label" for="memberNo">Bukan Member</label>
+                                </div>
+                            </div>
+    
+                            <div class="mb-3">
+                                <label for="phone_number" class="form-label">Nomor Telepon</label>
+                                <input type="text" class="form-control" name="phone_number" id="phone_number" placeholder="081234567890" disabled>
+                            </div>
+    
+                            <div class="mb-3">
+                                <label for="total_pay" class="form-label">Total Bayar</label>
+                                <input type="text" class="form-control" name="total_pay" id="total_pay"
+                                    value="{{ total_pay or '' }}"
+                                    required pattern="^[0-9.]+$" title="Hanya angka dan titik yang diperbolehkan"
+                                    data-total="{{ total_price }}">
+                            </div>
+                            <div id="totalPayError" class="text-danger mb-3" style="display: none;">
+                                Total bayar tidak boleh kurang dari total harga produk (Rp{{ "{:,.0f}".format(total_price).replace(",", ".") }})
+                            </div>
+                            
+    
+                            <button type="submit" class="btn btn-primary">Lanjut ke Langkah 2</button>
+                        </div>
+    
+                        <!-- Tabel produk di kanan -->
+                        <div class="col-md-6">
+                            <h5>Detail Produk yang Dipilih</h5>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Nama Produk</th>
+                                        <th>Qty</th>
+                                        <th>Harga</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.product_name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>Rp{{ "{:,.0f}".format(item.price).replace(",", ".") }}</td>
+                                        <td>Rp{{ "{:,.0f}".format(item.subtotal).replace(",", ".") }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3"><strong>Total</strong></td>
+                                        <td><strong>Rp{{ "{:,.0f}".format(total_price).replace(",", ".") }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        const memberYes = document.getElementById('memberYes');
+        const memberNo = document.getElementById('memberNo');
+        const phoneInput = document.getElementById('phone_number');
+        const input = document.getElementById('total_pay');
+    
+        input.addEventListener('input', function () {
+            let raw = input.value.replace(/\D/g, ''); 
+            if (!raw) {
+                input.value = '';
+                return;
+            }
+    
+            input.value = parseInt(raw).toLocaleString('id-ID');
+        });
+    
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            const totalHargaProduk = parseInt(input.dataset.total);
+            const raw = input.value.replace(/\./g, '').replace(/\D/g, '');
+            const bayar = parseInt(raw || '0');
+
+            if (bayar < totalHargaProduk) {
+                e.preventDefault();
+                document.getElementById('totalPayError').style.display = 'block';
+            } else {
+                document.getElementById('totalPayError').style.display = 'none';
+                input.value = raw;
+            }
+        });
+
+    
+        function togglePhoneInput() {
+            if (memberYes.checked) {
+                phoneInput.disabled = false;
+                phoneInput.required = true;
+            } else {
+                phoneInput.disabled = true;
+                phoneInput.value = '';
+                phoneInput.required = false;
+            }
+        }
+    
+        memberYes.addEventListener('change', togglePhoneInput);
+        memberNo.addEventListener('change', togglePhoneInput);
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}Tambah User{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Tambah User</h2>
+<form method="POST" autocomplete="off">
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" required autocomplete="off">
+    </div>
+    <div class="mb-3">
+        
+        <label for="password" class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required autocomplete="new-password">
+    </div>
+    <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select name="role" class="form-select" required>
+            <option value="admin">Admin</option>
+            <option value="petugas">Petugas</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Simpan</button>
+    <a href="{{ url_for('main.get_all_user') }}" class="btn btn-secondary">Kembali</a>
+</form>
+{% endblock %}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Kasir{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .sidebar {
+      height: 100vh;
+      background-color: #ffffff;
+      color: #212529;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      padding-top: 70px;
+      border-right: 1px solid #e9ecef;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      z-index: 100;
+    }
+
+    .sidebar a {
+      color: #495057;
+      text-decoration: none;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .sidebar a i {
+      margin-right: 12px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar a:hover {
+      background-color: #f8f9fa;
+      color: #0d6efd;
+      border-left-color: #0d6efd;
+    }
+
+    .sidebar a.active {
+      background-color: #f1f8ff;
+      color: #0d6efd;
+      border-left-color: #0d6efd;
+      font-weight: 500;
+    }
+
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      padding-top: 80px;
+    }
+
+    .navbar {
+      position: fixed;
+      width: 100%;
+      z-index: 999;
+      background-color: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      padding: 0.5rem 1rem;
+    }
+
+    .navbar-brand {
+      font-weight: 600;
+      color: #212529;
+      margin-left: 250px;
+    }
+
+    .logo-container {
+      width: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      border-right: 1px solid #e9ecef;
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #0d6efd;
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 70px;
+        padding-top: 60px;
+      }
+      
+      .sidebar a span {
+        display: none;
+      }
+      
+      .sidebar a {
+        justify-content: center;
+        padding: 15px 0;
+      }
+      
+      .sidebar a i {
+        margin-right: 0;
+        font-size: 20px;
+      }
+      
+      .main-content {
+        margin-left: 70px;
+      }
+      
+      .navbar-brand {
+        margin-left: 70px;
+      }
+      
+      .logo-container {
+        width: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="logo-container">
+    <span class="logo-text">SpecialChicken</span>
+  </div>
+  <div class="container-fluid">
+    <!-- <span class="navbar-brand">{% block page_title %}Dashboard{% endblock %}</span> -->
+    <div class="ms-auto">
+      <div class="dropdown">
+        <button class="btn btn-light rounded-circle border-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile" width="32" height="32">
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownMenuButton">
+          <li>
+            <a class="dropdown-item disabled" href="#">
+              <i class="bi bi-person-badge me-2"></i> {{ session['role'] }}
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}">
+              <i class="bi bi-box-arrow-right me-2"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <a href="{{ url_for('main.dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}">
+    <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+  </a>
+  <a href="{{ url_for('main.read_all_produk') }}" class="{% if request.path.startswith('/produk') %}active{% endif %}">
+    <i class="bi bi-box-seam"></i> <span>Produk</span>
+  </a>
+  <a href="{{ url_for('main.get_all_sale') }}" class="{% if request.path.startswith('/pembelian') %}active{% endif %}">
+    <i class="bi bi-cart-check"></i> <span>Pembelian</span>
+  </a>
+  {% if current_user.role == 'admin' %}
+  <a href="{{ url_for('main.get_all_user') }}" class="{% if request.path.startswith('/user') %}active{% endif %}">
+    <i class="bi bi-people"></i> <span>User</span>
+  </a>
+  {% endif %}
+</div>
+
+<!-- Main content -->
+<div class="main-content">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<!-- Bootstrap JS (Bootstrap 5 uses Popper.js) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
